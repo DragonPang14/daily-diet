@@ -114,3 +114,4 @@ secrets/
 *.dump
 *.sqlite
 *.sqlite3
+.trae/
