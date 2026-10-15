@@ -1,5 +1,7 @@
 package com.dailydiet.auth;
 
+import com.dailydiet.common.BizException;
+import com.dailydiet.common.enums.GoalType;
 import com.dailydiet.user.entity.User;
 import com.dailydiet.user.mapper.UserMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,14 +26,20 @@ public class WxLoginService {
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
 
     private static final String WX_LOGIN_URL =
             "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code";
 
     public LoginResponse login(String code) {
         String url = String.format(WX_LOGIN_URL, appid, secret, code);
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(url, String.class);
+        String response;
+        try {
+            response = restTemplate.getForObject(url, String.class);
+        } catch (Exception e) {
+            log.error("微信登录远程调用失败, code={}", code, e);
+            throw new BizException("微信服务暂时不可用，请稍后重试");
+        }
 
         try {
             JsonNode node = objectMapper.readTree(response);
@@ -45,7 +53,7 @@ public class WxLoginService {
             if (isNewUser) {
                 user = new User();
                 user.setOpenid(openid);
-                user.setGoalType(3); // 默认维持
+                user.setGoalType(GoalType.MAINTAIN.getCode());
                 userMapper.insert(user);
             }
 

@@ -19,3 +19,14 @@ wx:
 jwt:
   secret: your_jwt_secret_key_at_least_32_characters_long
   access-token-expiration: 7200000  # 2 小时
+
+# dev 环境开启 SQL 控制台日志（生产 profile 不配则默认关闭）
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

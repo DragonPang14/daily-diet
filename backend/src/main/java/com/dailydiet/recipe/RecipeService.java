@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dailydiet.algorithm.SubstitutionMatcher;
 import com.dailydiet.common.BizException;
+import com.dailydiet.common.constant.FoodSource;
+import com.dailydiet.common.enums.FoodCategory;
 import com.dailydiet.common.enums.MealType;
 import com.dailydiet.food.entity.Food;
 import com.dailydiet.food.mapper.FoodMapper;
@@ -79,10 +81,14 @@ public class RecipeService {
         List<RecipeItem> allItems = new ArrayList<>();
         // 每餐所需类别：蛋白 + 主食(谷物) + 蔬菜（加餐只蛋白+水果）
         Map<Integer, List<String>> mealCategories = new HashMap<>();
-        mealCategories.put(MealType.BREAKFAST.getCode(), List.of("蛋白", "谷物", "乳品"));
-        mealCategories.put(MealType.LUNCH.getCode(), List.of("蛋白", "谷物", "蔬菜"));
-        mealCategories.put(MealType.DINNER.getCode(), List.of("蛋白", "谷物", "蔬菜"));
-        mealCategories.put(MealType.SNACK.getCode(), List.of("蛋白", "水果"));
+        mealCategories.put(MealType.BREAKFAST.getCode(),
+                List.of(FoodCategory.PROTEIN.getDesc(), FoodCategory.GRAIN.getDesc(), FoodCategory.DAIRY.getDesc()));
+        mealCategories.put(MealType.LUNCH.getCode(),
+                List.of(FoodCategory.PROTEIN.getDesc(), FoodCategory.GRAIN.getDesc(), FoodCategory.VEGETABLE.getDesc()));
+        mealCategories.put(MealType.DINNER.getCode(),
+                List.of(FoodCategory.PROTEIN.getDesc(), FoodCategory.GRAIN.getDesc(), FoodCategory.VEGETABLE.getDesc()));
+        mealCategories.put(MealType.SNACK.getCode(),
+                List.of(FoodCategory.PROTEIN.getDesc(), FoodCategory.FRUIT.getDesc()));
 
         for (MealType meal : MealType.values()) {
             double mealKcal = target.getTargetKcal() * MEAL_RATIOS[meal.getCode() - 1];
@@ -183,19 +189,26 @@ public class RecipeService {
         Food newFood = foodMapper.selectById(newFoodId);
         if (newFood == null) throw new BizException("替换食材不存在");
 
-        // 保持热量接近，反算克数
-        double targetKcal = item.getEnergyKcal().doubleValue();
-        double weightG = targetKcal / newFood.getEnergyKcal().doubleValue() * 100;
+        // 保持热量接近，反算克数（BigDecimal 精确计算）
+        BigDecimal newFoodKcal = newFood.getEnergyKcal();
+        if (newFoodKcal.compareTo(BigDecimal.ZERO) == 0) {
+            throw new BizException("替换食材热量为 0，无法计算克数");
+        }
+        // weightG = targetKcal / newFoodKcal * 100
+        BigDecimal weightG = item.getEnergyKcal()
+                .divide(newFoodKcal, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(2, RoundingMode.HALF_UP);
 
         item.setFoodId(newFoodId);
-        item.setFoodWeightG(BigDecimal.valueOf(Math.round(weightG * 100) / 100.0));
+        item.setFoodWeightG(weightG);
 
-        // 重算 PFC
-        double ratio = weightG / 100;
-        item.setEnergyKcal(BigDecimal.valueOf(newFood.getEnergyKcal().doubleValue() * ratio));
-        item.setProteinG(BigDecimal.valueOf(newFood.getProteinG().doubleValue() * ratio));
-        item.setFatG(BigDecimal.valueOf(newFood.getFatG().doubleValue() * ratio));
-        item.setCarboG(BigDecimal.valueOf(newFood.getCarboG().doubleValue() * ratio));
+        // 重算 PFC（ratio = weightG / 100）
+        BigDecimal ratio = weightG.divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP);
+        item.setEnergyKcal(newFood.getEnergyKcal().multiply(ratio).setScale(2, RoundingMode.HALF_UP));
+        item.setProteinG(newFood.getProteinG().multiply(ratio).setScale(2, RoundingMode.HALF_UP));
+        item.setFatG(newFood.getFatG().multiply(ratio).setScale(2, RoundingMode.HALF_UP));
+        item.setCarboG(newFood.getCarboG().multiply(ratio).setScale(2, RoundingMode.HALF_UP));
 
         itemMapper.updateById(item);
         return item;
@@ -254,7 +267,7 @@ public class RecipeService {
             // 该类别中随机选一个（排除 disliked）
             LambdaQueryWrapper<Food> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(Food::getCategory, category)
-                   .eq(Food::getSource, 1); // 标准库
+                   .eq(Food::getSource, FoodSource.STANDARD);
             if (!dislikeFoods.isEmpty()) {
                 wrapper.notIn(Food::getId, dislikeFoods);
             }
@@ -266,16 +279,16 @@ public class RecipeService {
             double targetNutrient;
             double foodNutrientPer100g;
 
-            if (category.equals("蛋白")) {
+            if (FoodCategory.PROTEIN.getDesc().equals(category)) {
                 targetNutrient = remainingProtein * 0.6;
                 foodNutrientPer100g = food.getProteinG().doubleValue();
-            } else if (category.equals("谷物")) {
+            } else if (FoodCategory.GRAIN.getDesc().equals(category)) {
                 targetNutrient = remainingCarbo * 0.6;
                 foodNutrientPer100g = food.getCarboG().doubleValue();
-            } else if (category.equals("乳品")) {
+            } else if (FoodCategory.DAIRY.getDesc().equals(category)) {
                 targetNutrient = remainingProtein * 0.3;
                 foodNutrientPer100g = food.getProteinG().doubleValue();
-            } else if (category.equals("水果")) {
+            } else if (FoodCategory.FRUIT.getDesc().equals(category)) {
                 targetNutrient = remainingCarbo * 0.3;
                 foodNutrientPer100g = food.getCarboG().doubleValue();
             } else {

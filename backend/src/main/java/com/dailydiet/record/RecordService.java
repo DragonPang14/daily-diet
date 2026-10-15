@@ -117,26 +117,33 @@ public class RecordService {
     public DailySummary getSummaryByDate(Long userId, LocalDate date) {
         List<DietRecord> records = recordMapper.findByUserAndDate(userId, date);
 
-        double totalKcal = 0, totalP = 0, totalF = 0, totalC = 0;
+        BigDecimal totalKcal = BigDecimal.ZERO;
+        BigDecimal totalProtein = BigDecimal.ZERO;
+        BigDecimal totalFat = BigDecimal.ZERO;
+        BigDecimal totalCarbo = BigDecimal.ZERO;
         for (DietRecord r : records) {
-            totalKcal += r.getEnergyKcal().doubleValue();
-            totalP += r.getProteinG().doubleValue();
-            totalF += r.getFatG().doubleValue();
-            totalC += r.getCarboG().doubleValue();
+            totalKcal = totalKcal.add(r.getEnergyKcal());
+            totalProtein = totalProtein.add(r.getProteinG());
+            totalFat = totalFat.add(r.getFatG());
+            totalCarbo = totalCarbo.add(r.getCarboG());
         }
 
         TargetResponse target = userService.getTarget(userId);
+        BigDecimal targetKcal = BigDecimal.valueOf(target.getTargetKcal());
 
         DailySummary s = new DailySummary();
-        s.setTotalKcal(BigDecimal.valueOf(Math.round(totalKcal * 100) / 100.0));
-        s.setTotalProteinG(BigDecimal.valueOf(Math.round(totalP * 100) / 100.0));
-        s.setTotalFatG(BigDecimal.valueOf(Math.round(totalF * 100) / 100.0));
-        s.setTotalCarboG(BigDecimal.valueOf(Math.round(totalC * 100) / 100.0));
+        s.setTotalKcal(totalKcal.setScale(2, RoundingMode.HALF_UP));
+        s.setTotalProteinG(totalProtein.setScale(2, RoundingMode.HALF_UP));
+        s.setTotalFatG(totalFat.setScale(2, RoundingMode.HALF_UP));
+        s.setTotalCarboG(totalCarbo.setScale(2, RoundingMode.HALF_UP));
         s.setTargetKcal(target.getTargetKcal());
         s.setTargetProteinG(BigDecimal.valueOf(target.getTargetProteinG()));
         s.setTargetFatG(BigDecimal.valueOf(target.getTargetFatG()));
         s.setTargetCarboG(BigDecimal.valueOf(target.getTargetCarboG()));
-        s.setAchievementRate(totalKcal / target.getTargetKcal());
+        // 达成率，分母为 0 时安全返回 0
+        double rate = targetKcal.compareTo(BigDecimal.ZERO) == 0 ? 0.0
+                : totalKcal.divide(targetKcal, 4, RoundingMode.HALF_UP).doubleValue();
+        s.setAchievementRate(rate);
         s.setRecords(records);
         return s;
     }

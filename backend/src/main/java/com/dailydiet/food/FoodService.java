@@ -3,6 +3,8 @@ package com.dailydiet.food;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dailydiet.common.BizException;
+import com.dailydiet.common.constant.CacheKey;
+import com.dailydiet.common.constant.FoodSource;
 import com.dailydiet.food.dto.CustomFoodRequest;
 import com.dailydiet.food.dto.FoodSearchRequest;
 import com.dailydiet.food.entity.Food;
@@ -36,14 +38,16 @@ public class FoodService {
     }
 
     public Food getById(Long id) {
-        Food f = (Food) redisTemplate.opsForValue().get("food:" + id);
-        if (f != null) return f;
+        Object cached = redisTemplate.opsForValue().get(CacheKey.FOOD + id);
+        if (cached instanceof Food f) {
+            return f;
+        }
 
-        f = foodMapper.selectById(id);
-        if (f == null) throw new BizException("食物不存在");
+        Food food = foodMapper.selectById(id);
+        if (food == null) throw new BizException("食物不存在");
 
-        redisTemplate.opsForValue().set("food:" + id, f, Duration.ofMinutes(30));
-        return f;
+        redisTemplate.opsForValue().set(CacheKey.FOOD + id, food, Duration.ofMinutes(CacheKey.FOOD_TTL_MINUTES));
+        return food;
     }
 
     public Food createCustomFood(Long userId, CustomFoodRequest req) {
@@ -51,7 +55,7 @@ public class FoodService {
         f.setName(req.getName());
         f.setCategory(req.getCategory());
         f.setBrand(req.getBrand());
-        f.setSource(2); // 用户自定义
+        f.setSource(FoodSource.CUSTOM);
         f.setEnergyKcal(req.getEnergyKcal());
         f.setProteinG(req.getProteinG());
         f.setFatG(req.getFatG());
@@ -74,7 +78,7 @@ public class FoodService {
     public Food updateCustomFood(Long id, CustomFoodRequest req) {
         Food f = foodMapper.selectById(id);
         if (f == null) throw new BizException("食物不存在");
-        if (f.getSource() != 2) throw new BizException("只能修改自定义食物");
+        if (f.getSource() != FoodSource.CUSTOM) throw new BizException("只能修改自定义食物");
 
         f.setName(req.getName());
         f.setCategory(req.getCategory());
@@ -94,15 +98,15 @@ public class FoodService {
         f.setPfcVector("[" + vec[0] + "," + vec[1] + "," + vec[2] + "]");
 
         foodMapper.updateById(f);
-        redisTemplate.delete("food:" + id);
+        redisTemplate.delete(CacheKey.FOOD + id);
         return f;
     }
 
     public void deleteCustomFood(Long id) {
         Food f = foodMapper.selectById(id);
         if (f == null) throw new BizException("食物不存在");
-        if (f.getSource() != 2) throw new BizException("只能删除自定义食物");
+        if (f.getSource() != FoodSource.CUSTOM) throw new BizException("只能删除自定义食物");
         foodMapper.deleteById(id);
-        redisTemplate.delete("food:" + id);
+        redisTemplate.delete(CacheKey.FOOD + id);
     }
 }
