@@ -11,6 +11,7 @@ spring:
       port: ${REDIS_PORT:6379}
       database: 0
       timeout: 3000ms
+      password: ${REDIS_PASSWORD:}
 
 wx:
   appid: ${WX_APPID}
