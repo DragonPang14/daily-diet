@@ -1,31 +1,38 @@
 package com.dailydiet.recipe;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.dailydiet.algorithm.PfcVector;
 import com.dailydiet.algorithm.SubstitutionMatcher;
-import com.dailydiet.algorithm.TdeeCalculator;
 import com.dailydiet.common.BizException;
-import com.dailydiet.common.enums.GoalType;
 import com.dailydiet.common.enums.MealType;
 import com.dailydiet.food.entity.Food;
 import com.dailydiet.food.mapper.FoodMapper;
 import com.dailydiet.recipe.dto.RecipeResponse;
 import com.dailydiet.recipe.dto.SubstituteResponse;
-import com.dailydiet.recipe.entity.*;
-import com.dailydiet.recipe.mapper.*;
+import com.dailydiet.recipe.entity.DailyRecipe;
+import com.dailydiet.recipe.entity.FoodDislike;
+import com.dailydiet.recipe.entity.RecipeItem;
+import com.dailydiet.recipe.mapper.DailyRecipeMapper;
+import com.dailydiet.recipe.mapper.FoodDislikeMapper;
+import com.dailydiet.recipe.mapper.RecipeItemMapper;
 import com.dailydiet.user.UserService;
-import com.dailydiet.user.entity.User;
 import com.dailydiet.user.dto.TargetResponse;
+import com.dailydiet.user.entity.User;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
