@@ -52,6 +52,10 @@ public class Food {
     /** PFC 向量冗余存储，格式 JSON："[碳水g,蛋白g,脂肪g]"，用于余弦相似度快速计算 */
     private String pfcVector;
 
+    /** 逻辑删除：0=未删除，1=已删除（MyBatis-Plus 自动维护） */
+    @TableLogic
+    private Integer deleted;
+
     /** 创建时间（自动填充） */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

@@ -53,6 +53,10 @@ public class DietRecord {
     /** 若该记录来自推荐食谱，关联 recipe_items.id */
     private Long recipeItemId;
 
+    /** 逻辑删除：0=未删除，1=已删除（MyBatis-Plus 自动维护） */
+    @TableLogic
+    private Integer deleted;
+
     /** 创建时间（自动填充） */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

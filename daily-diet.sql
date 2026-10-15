@@ -95,12 +95,16 @@ CREATE TABLE foods (
     -- PFC 向量冗余（便于快速余弦相似度计算），格式：JSON 字符串 "[c,p,f]"
     pfc_vector      VARCHAR(64)           DEFAULT NULL,
 
+    -- 逻辑删除（用户删除自定义食物时软删，保留历史饮食记录的引用完整性）
+    deleted         TINYINT      NOT NULL DEFAULT 0 COMMENT '0=未删除 1=已删除',
+
     created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     INDEX idx_name (name),
     INDEX idx_category (category),
-    INDEX idx_source (source)
+    INDEX idx_source (source),
+    INDEX idx_deleted (deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='食物库（标准 + 自定义）';
 
 -- -----------------------------------------------------------------------------
@@ -203,11 +207,15 @@ CREATE TABLE diet_records (
     source          TINYINT      NOT NULL DEFAULT 1 COMMENT '1=一键入库 2=手动添加 3=替换',
     recipe_item_id  BIGINT UNSIGNED          DEFAULT NULL COMMENT '若从食谱来，关联 recipe_items.id',
 
+    -- 逻辑删除（用户删除饮食记录时软删，保留统计历史）
+    deleted         TINYINT      NOT NULL DEFAULT 0 COMMENT '0=未删除 1=已删除',
+
     created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     INDEX idx_user_date (user_id, record_date),
-    INDEX idx_food (food_id)
+    INDEX idx_food (food_id),
+    INDEX idx_deleted (deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='每日实际饮食记录';
 
 -- -----------------------------------------------------------------------------

@@ -11,6 +11,6 @@ import java.util.List;
 @Mapper
 public interface DietRecordMapper extends BaseMapper<DietRecord> {
 
-    @Select("SELECT * FROM diet_records WHERE user_id = #{userId} AND record_date = #{date} ORDER BY meal_type, created_at")
+    @Select("SELECT * FROM diet_records WHERE user_id = #{userId} AND record_date = #{date} AND deleted = 0 ORDER BY meal_type, created_at")
     List<DietRecord> findByUserAndDate(Long userId, LocalDate date);
 }
