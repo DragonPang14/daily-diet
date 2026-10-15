@@ -24,10 +24,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { foodApi } from "@/api/food";
 
 const keyword = ref("");
-const category = ref("");
 
 function onSearch(): void {
   // TODO: 调 foodApi.search({ keyword, category, page: 1 })

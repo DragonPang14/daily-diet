@@ -27,7 +27,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { userApi } from "@/api/user";
 
 const step = ref(1);
 

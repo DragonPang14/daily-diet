@@ -22,8 +22,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { statsApi } from "@/api/stats";
-import { daysAgo } from "@/utils/format";
 
 const range = ref(7);
 

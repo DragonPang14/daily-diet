@@ -20,11 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { recordApi } from "@/api/record";
-import { useDietStore } from "@/store/diet";
-
-const dietStore = useDietStore();
-
 function goAdd(): void {
   // TODO: 弹层或独立页选择食物 + 录入克数
   // recordApi.create({ foodId, grams, mealType })

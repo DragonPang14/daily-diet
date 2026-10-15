@@ -26,13 +26,6 @@
 </template>
 
 <script setup lang="ts">
-import { userApi } from "@/api/user";
-import { recordApi } from "@/api/record";
-import { recipeApi } from "@/api/recipe";
-import { useDietStore } from "@/store/diet";
-
-const dietStore = useDietStore();
-
 function goRecipe(): void {
   uni.navigateTo({ url: "/pages/recipe/index" });
 }

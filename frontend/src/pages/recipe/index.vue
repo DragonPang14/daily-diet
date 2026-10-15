@@ -21,11 +21,6 @@
 </template>
 
 <script setup lang="ts">
-import { recipeApi } from "@/api/recipe";
-import { useDietStore } from "@/store/diet";
-
-const dietStore = useDietStore();
-
 // TODO: onMounted 调用 recipeApi.getToday() 写入 dietStore
 // TODO: substitute(itemId) 调 recipeApi.substitute(itemId)
 // TODO: dislike(itemId) 调 recipeApi.dislike(itemId)
