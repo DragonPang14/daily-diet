@@ -1,15 +1,21 @@
 import { del, get, post, put } from "./http";
 
+/** 食物（对齐后端 Food 实体，营养值为每 100g） */
 export interface Food {
   id: number;
   name: string;
+  /** 类别：谷物/蛋白/蔬菜/水果/乳品/坚果/调料 */
   category: string;
+  brand?: string;
+  /** 来源：1=标准库 2=用户自定义 */
+  source: number;
   energyKcal: number;
   proteinG: number;
   fatG: number;
   carboG: number;
-  source: number; // 1 标准库 2 自定义
-  userId?: number;
+  /** 常用份量 g */
+  commonWeight?: number;
+  imageUrl?: string;
 }
 
 export interface FoodSearchParams {
@@ -26,13 +32,17 @@ export interface PageResult<T> {
   size: number;
 }
 
+/** 自定义食物请求体（对齐后端 CustomFoodRequest） */
 export interface CustomFoodRequest {
   name: string;
   category: string;
+  brand?: string;
   energyKcal: number;
   proteinG: number;
   fatG: number;
   carboG: number;
+  commonWeight?: number;
+  imageUrl?: string;
 }
 
 /** 搜索食物库（支持模糊 + 分类） */
@@ -61,4 +71,3 @@ export function deleteCustom(id: number): Promise<void> {
 }
 
 export const foodApi = { search, getById, createCustom, updateCustom, deleteCustom };
-

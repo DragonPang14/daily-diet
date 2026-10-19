@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日饮食助手 · 前端 UI 设计稿 v1.0</title>
+<style>
+  :root{
+    --primary:#07C160; --primary-dark:#06A856; --primary-light:#E8F9F0;
+    --ink:#1F2329; --ink-2:#4E5561; --ink-3:#8A919E; --line:#EBEDF1;
+    --bg:#EEF0F4; --screen-bg:#F5F6F8; --card:#FFFFFF;
+    --carbo:#5B8FF9; --protein:#FF7A45; --fat:#F5C518;
+    --danger:#F5222D; --orange:#FA8C16;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);}
+
+  /* ---------- 页面头 ---------- */
+  .doc-head{max-width:1480px;margin:0 auto;padding:48px 40px 8px;}
+  .doc-head h1{font-size:30px;letter-spacing:1px;}
+  .doc-head .sub{margin-top:10px;color:var(--ink-2);font-size:14px;line-height:1.9;}
+  .meta-chips{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-size:12px;padding:4px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink-2);}
+  .chip b{color:var(--primary-dark);font-weight:600;}
+  .legend{margin-top:14px;display:flex;gap:18px;align-items:center;font-size:12px;color:var(--ink-2);flex-wrap:wrap;}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+  /* ---------- 分节 ---------- */
+  .stage{max-width:1480px;margin:0 auto;padding:8px 40px 64px;}
+  .section{margin-top:44px;}
+  .section-title{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;}
+  .section-title h2{font-size:20px;}
+  .section-title .no{font-size:13px;color:#fff;background:var(--ink);border-radius:8px;padding:2px 9px;}
+  .section-desc{font-size:13px;color:var(--ink-3);margin-bottom:22px;}
+  .phone-row{display:flex;gap:44px;flex-wrap:wrap;justify-content:flex-start;}
+
+  /* ---------- 手机壳 ---------- */
+  .phone-unit{width:375px;flex:none;}
+  .phone{width:375px;height:812px;background:var(--screen-bg);border-radius:46px;position:relative;overflow:hidden;
+    box-shadow:0 26px 60px rgba(20,30,50,.20),0 0 0 11px #14181F,0 0 0 13px #454E5E;}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;}
+  .statusbar{height:46px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:6px 26px 0;font-size:13px;font-weight:600;}
+  .statusbar .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:112px;height:30px;background:#14181F;border-radius:18px;}
+  .statusbar .icons{display:flex;gap:5px;align-items:center;font-size:11px;}
+  .navbar{height:44px;flex:none;display:flex;align-items:center;justify-content:center;position:relative;font-size:16px;font-weight:600;}
+  .navbar .back{position:absolute;left:16px;font-size:18px;color:var(--ink-2);font-weight:400;}
+  .capsule{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:80px;height:30px;border:1px solid rgba(0,0,0,.07);border-radius:16px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:space-evenly;color:#333;}
+  .capsule .sep{width:1px;height:16px;background:rgba(0,0,0,.1);}
+  .content{flex:1;overflow:hidden;padding:10px 14px 8px;display:flex;flex-direction:column;gap:10px;position:relative;}
+  .tabbar{flex:none;height:74px;background:#fff;border-top:1px solid var(--line);display:flex;padding:6px 0 18px;}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--ink-3);}
+  .tab.on{color:var(--primary-dark);font-weight:600;}
+  .tab svg{width:23px;height:23px;}
+
+  /* ---------- 通用组件 ---------- */
+  .card{background:var(--card);border-radius:14px;padding:13px 14px;box-shadow:0 2px 10px rgba(30,40,60,.045);}
+  .btn-primary{background:var(--primary);color:#fff;border-radius:12px;text-align:center;font-size:15px;font-weight:600;padding:13px 0;box-shadow:0 6px 14px rgba(7,193,96,.28);}
+  .btn-ghost{border:1px solid var(--line);color:var(--ink-2);border-radius:10px;text-align:center;font-size:12px;padding:7px 0;background:#fff;}
+  .field{background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;font-size:14px;}
+  .field .ph{color:var(--ink-3);}
+  .field .unit{color:var(--ink-3);font-size:12px;margin-left:6px;}
+  .flabel{font-size:12px;color:var(--ink-2);margin:2px 0 6px;font-weight:600;}
+  .steps{display:flex;gap:6px;align-items:center;padding:2px 4px 0;}
+  .steps i{flex:1;height:4px;border-radius:2px;background:#E3E6EB;}
+  .steps i.done{background:var(--primary);}
+  .steps span{font-size:11px;color:var(--ink-3);margin-left:4px;}
+  .h-title{font-size:21px;font-weight:700;padding:4px 4px 0;}
+  .h-sub{font-size:12px;color:var(--ink-3);padding:2px 4px 0;line-height:1.7;}
+
+  .seg2{display:flex;gap:10px;}
+  .seg2 .opt{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:13px 0;text-align:center;font-size:15px;font-weight:600;color:var(--ink-2);}
+  .seg2 .opt.on{border-color:var(--primary);background:var(--primary-light);color:var(--primary-dark);}
+
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .cchip{font-size:12px;padding:6px 13px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink-2);}
+  .cchip.on{background:var(--primary-light);border-color:var(--primary);color:var(--primary-dark);font-weight:600;}
+
+  /* 首页 */
+  .ring-wrap{display:flex;align-items:center;gap:14px;}
+  .ring-box{position:relative;width:128px;height:128px;flex:none;}
+  .ring-box svg{transform:rotate(-90deg);}
+  .ring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring-c b{font-size:22px;}
+  .ring-c span{font-size:10px;color:var(--ink-3);}
+  .kcal-nums{flex:1;}
+  .kcal-nums .row{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);padding:3px 0;}
+  .kcal-nums .row b{color:var(--ink);font-size:13px;}
+  .pfc-row{display:flex;align-items:center;gap:8px;font-size:11px;margin-top:7px;}
+  .pfc-row .nm{width:30px;color:var(--ink-2);flex:none;}
+  .pfc-row .track{flex:1;height:7px;border-radius:4px;background:#EFF1F5;overflow:hidden;}
+  .pfc-row .fill{height:100%;border-radius:4px;}
+  .pfc-row .val{width:76px;text-align:right;color:var(--ink-3);flex:none;}
+
+  .meal{background:#fff;border-radius:14px;padding:11px 13px;box-shadow:0 2px 10px rgba(30,40,60,.045);}
+  .meal-head{display:flex;align-items:center;gap:8px;}
+  .meal-tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;}
+  .t-breakfast{background:#FFF4E5;color:#D48806;} .t-lunch{background:#E8F9F0;color:#06A856;}
+  .t-dinner{background:#E8F0FE;color:#3B6FE0;} .t-snack{background:#F3E8FF;color:#7B3FE4;}
+  .meal-kcal{font-size:12px;color:var(--ink-2);margin-left:auto;}
+  .meal-kcal b{font-size:14px;color:var(--ink);}
+  .meal-state{font-size:11px;}
+  .st-done{color:var(--primary-dark);font-weight:600;} .st-todo{color:var(--ink-3);}
+  .meal-items{margin-top:7px;font-size:12px;color:var(--ink-2);line-height:1.75;}
+  .meal-items .it{display:flex;justify-content:space-between;}
+  .meal-items .it .g{color:var(--ink-3);}
+  .meal-acts{display:flex;gap:8px;margin-top:9px;}
+  .meal-acts .btn-ghost{flex:1;}
+  .meal-acts .btn-eat{flex:1;background:var(--primary);color:#fff;border-radius:10px;text-align:center;font-size:12px;font-weight:600;padding:7px 0;}
+
+  .yday{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-2);background:#FFFBE8;border:1px solid #FEEDB7;border-radius:10px;padding:8px 12px;}
+
+  /* 弹层 */
+  .dim{position:absolute;inset:0;background:rgba(15,20,28,.45);z-index:5;}
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;background:#fff;border-radius:20px 20px 0 0;padding:14px 14px 26px;box-shadow:0 -8px 30px rgba(0,0,0,.18);}
+  .sheet .grab{width:38px;height:4px;border-radius:2px;background:#E0E3E8;margin:0 auto 10px;}
+  .sheet h3{font-size:16px;}
+  .origin{display:flex;align-items:center;gap:8px;background:#F7F8FA;border-radius:11px;padding:9px 12px;font-size:12px;margin-top:10px;}
+  .origin b{font-size:13px;}
+  .origin .pfc-mini{margin-left:auto;color:var(--ink-3);font-size:11px;}
+  .cand{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:9px;}
+  .cand.best{border-color:var(--primary);background:var(--primary-light);}
+  .cand-top{display:flex;align-items:center;gap:8px;}
+  .cand-top b{font-size:14px;}
+  .match{font-size:10px;font-weight:700;color:#fff;background:var(--primary);border-radius:6px;padding:2px 7px;}
+  .match.m2{background:#7BC8A4;} .match.m3{background:#9AA5B5;}
+  .delta{font-size:11px;margin-left:auto;font-weight:600;}
+  .delta.up{color:var(--orange);} .delta.down{color:var(--primary-dark);}
+  .cand-pfc{display:flex;gap:5px;margin-top:8px;align-items:center;}
+  .cand-pfc .bar{height:6px;border-radius:3px;}
+  .cand-pfc .txt{font-size:10px;color:var(--ink-3);margin-left:4px;}
+
+  /* 食物库 */
+  .search{display:flex;align-items:center;gap:7px;background:#fff;border-radius:999px;padding:9px 14px;font-size:13px;color:var(--ink-3);border:1px solid var(--line);}
+  .cat-row{display:flex;gap:7px;overflow:hidden;flex:none;}
+  .cat{font-size:12px;padding:6px 12px;border-radius:999px;background:#fff;color:var(--ink-2);border:1px solid var(--line);white-space:nowrap;flex:none;}
+  .cat.on{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600;}
+  .food{display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:11px 12px;box-shadow:0 2px 8px rgba(30,40,60,.04);}
+  .food .ic{width:38px;height:38px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;font-size:19px;}
+  .food .fi{flex:1;min-width:0;}
+  .food .fi .fn{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;}
+  .food .fi .fn .tag{font-size:9px;font-weight:400;padding:1px 6px;border-radius:5px;background:#F0F2F5;color:var(--ink-3);}
+  .food .fi .fn .tag.fav{background:#FFF1D6;color:#D48806;}
+  .food .fi .fm{font-size:11px;color:var(--ink-3);margin-top:3px;}
+  .food .add{width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;flex:none;}
+
+  /* 记录页 */
+  .rec-item{display:flex;align-items:center;font-size:12px;padding:7px 0;border-top:1px dashed #F0F1F4;}
+  .rec-item:first-of-type{border-top:none;}
+  .rec-item .rn{flex:1;}
+  .rec-item .rg{color:var(--ink-3);width:58px;text-align:right;}
+  .rec-item .rk{width:62px;text-align:right;color:var(--ink-2);}
+  .rec-item .ops{display:flex;gap:5px;margin-left:8px;}
+  .rec-item .ops i{font-style:normal;font-size:10px;color:var(--ink-3);border:1px solid var(--line);border-radius:6px;padding:2px 6px;}
+
+  /* 统计 */
+  .seg-tab{display:flex;background:#ECEEF2;border-radius:10px;padding:3px;width:150px;margin:0 auto;}
+  .seg-tab div{flex:1;text-align:center;font-size:12px;padding:5px 0;border-radius:8px;color:var(--ink-2);}
+  .seg-tab .on{background:#fff;font-weight:700;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .achv{display:flex;text-align:center;}
+  .achv .cell{flex:1;}
+  .achv .cell b{font-size:19px;display:block;}
+  .achv .cell span{font-size:10px;color:var(--ink-3);}
+  .chart-t{font-size:12px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .chart-t .hint{font-size:10px;color:var(--ink-3);font-weight:400;}
+
+  /* 我的 */
+  .profile{display:flex;align-items:center;gap:12px;}
+  .avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#7BC8A4,#07C160);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;flex:none;}
+  .profile .pn{font-size:17px;font-weight:700;}
+  .profile .pm{font-size:11px;color:var(--ink-3);margin-top:4px;}
+  .grid4{display:flex;text-align:center;}
+  .grid4 .cell{flex:1;position:relative;}
+  .grid4 .cell+.cell:before{content:"";position:absolute;left:0;top:20%;bottom:20%;width:1px;background:var(--line);}
+  .grid4 b{font-size:16px;display:block;}
+  .grid4 span{font-size:10px;color:var(--ink-3);}
+  .menu{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(30,40,60,.045);}
+  .menu .mi{display:flex;align-items:center;font-size:13px;padding:13px 14px;border-top:1px solid #F4F5F7;}
+  .menu .mi:first-child{border-top:none;}
+  .menu .mi .icn{width:22px;margin-right:9px;text-align:center;}
+  .menu .mi .arr{margin-left:auto;color:#C4C9D1;font-size:14px;}
+  .menu .mi .val{margin-left:auto;color:var(--ink-3);font-size:11px;margin-right:8px;}
+
+  .cta-sticky{margin-top:auto;background:var(--primary);color:#fff;border-radius:13px;text-align:center;font-size:14px;font-weight:700;padding:13px 0;box-shadow:0 8px 16px rgba(7,193,96,.3);}
+  .badge-ver{font-size:9px;color:#fff;background:var(--orange);border-radius:5px;padding:1px 5px;vertical-align:2px;margin-left:4px;}
+  .badge-v12{background:#7B3FE4;}
+
+  /* 注释 */
+  .note{margin-top:18px;background:#fff;border-radius:14px;padding:14px 16px;border:1px solid var(--line);font-size:12px;color:var(--ink-2);line-height:1.9;}
+  .note h4{font-size:13px;color:var(--ink);margin-bottom:6px;}
+  .note .apis{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;}
+  .api{font-family:Consolas,monospace;font-size:10px;background:#F2F4F8;border:1px solid #E3E7EE;border-radius:6px;padding:2px 8px;color:#41506B;}
+
+  .foot{max-width:1480px;margin:0 auto;padding:0 40px 60px;}
+  .foot table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;font-size:12px;box-shadow:0 2px 10px rgba(30,40,60,.05);}
+  .foot th,.foot td{padding:10px 14px;text-align:left;border-bottom:1px solid #F2F3F6;}
+  .foot th{background:#F7F8FA;font-size:12px;color:var(--ink-2);}
+  .foot td{font-family:Consolas,monospace;font-size:11px;color:#41506B;}
+  .foot td:first-child{font-family:inherit;font-weight:600;color:var(--ink);font-size:12px;}
+</style>
+</head>
+<body>
+
+<!-- ================= 文档头 ================= -->
+<header class="doc-head">
+  <h1>每日饮食助手 · 前端 UI 设计稿</h1>
+  <div class="sub">
+    依据《开发设计文档.md》v1.0 与《需求文档-详细版.md》功能说明绘制 · 平台：微信小程序（uni-app + vant-weapp 风格）· 设计尺寸 375 × 812<br>
+    覆盖 v1.0 全部核心页面（Onboarding / 首页 / 替换 / 记录 / 食物库），含 v1.1（统计、自定义食物）与 v1.2（AI 建议）预埋位。
+  </div>
+  <div class="meta-chips">
+    <span class="chip">示例用户：男 · 28岁 · 178cm · 75kg</span>
+    <span class="chip">BMR <b>1718</b> × 肌肉修正 <b>1.04</b> × 活动系数 <b>1.55</b> = TDEE <b>2770</b></span>
+    <span class="chip">目标：减脂 −400 → 每日目标 <b>2370 kcal</b></span>
+    <span class="chip">餐次分配：早 25% · 午 35% · 晚 30% · 加餐 10%</span>
+  </div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--carbo)"></i>碳水</span>
+    <span><i class="dot" style="background:var(--protein)"></i>蛋白质</span>
+    <span><i class="dot" style="background:var(--fat)"></i>脂肪</span>
+    <span><i class="dot" style="background:var(--primary)"></i>主色 / 达成（WeChat Green #07C160）</span>
+  </div>
+</header>
+
+<div class="stage">
+
+  <!-- ================= ① Onboarding ================= -->
+  <section class="section">
+    <div class="section-title"><span class="no">流程一</span><h2>首次启动 · Onboarding 三步</h2></div>
+    <div class="section-desc">基础信息 → 训练水平（可跳过）→ 目标设置；完成后实时计算 BMR/TDEE 并自动生成今日食谱。</div>
+    <div class="phone-row">
+
+      <!-- Step 1 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">每日饮食助手<div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div class="steps"><i class="done"></i><i></i><i></i><span>1/3</span></div>
+            <div class="h-title">先认识一下你 👋</div>
+            <div class="h-sub">用于 Mifflin-St Jeor 公式计算基础代谢，数据仅保存在本服务中。</div>
+            <div>
+              <div class="flabel">性别</div>
+              <div class="seg2"><div class="opt on">♂ 男</div><div class="opt">♀ 女</div></div>
+            </div>
+            <div>
+              <div class="flabel">生日</div>
+              <div class="field">1998-03-15<span class="ph">📅</span></div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <div style="flex:1;"><div class="flabel">身高</div><div class="field">178<span class="unit">cm</span></div></div>
+              <div style="flex:1;"><div class="flabel">当前体重</div><div class="field">75.0<span class="unit">kg</span></div></div>
+            </div>
+            <div>
+              <div class="flabel">目标体重（选填）</div>
+              <div class="field">70.0<span class="unit">kg</span></div>
+            </div>
+            <div style="margin-top:auto;" class="btn-primary">下一步</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>Onboarding ① 基础信息</h4>
+          校验规则：年龄 14–80、身高 120–230cm、体重 30–200kg（精确 0.1）；修改后触发 BMR/TDEE 重算。
+          <div class="apis"><span class="api">PUT /users/me</span><span class="api">GET /users/me/target</span></div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">每日饮食助手<div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div class="steps"><i class="done"></i><i class="done"></i><i></i><span>2/3</span></div>
+            <div class="h-title">你的力量水平 💪</div>
+            <div class="h-sub">三大项 1RM 用于估算肌肉量修正 BMR（力量指数 ≥4.5 → ×1.04）；不填则按普通人群计算。</div>
+            <div style="display:flex;gap:10px;">
+              <div style="flex:1;"><div class="flabel">深蹲 1RM</div><div class="field">120<span class="unit">kg</span></div></div>
+              <div style="flex:1;"><div class="flabel">卧推 1RM</div><div class="field">90<span class="unit">kg</span></div></div>
+              <div style="flex:1;"><div class="flabel">硬拉 1RM</div><div class="field">150<span class="unit">kg</span></div></div>
+            </div>
+            <div>
+              <div class="flabel">不确定？直接选训练等级</div>
+              <div class="chip-row"><span class="cchip">新手</span><span class="cchip on">中级</span><span class="cchip">高级</span></div>
+            </div>
+            <div>
+              <div class="flabel">每周训练频率（活动系数）</div>
+              <div class="chip-row">
+                <span class="cchip">久坐 ×1.2</span><span class="cchip">1–3 次 ×1.375</span>
+                <span class="cchip on">3–5 次 ×1.55</span><span class="cchip">6–7 次 ×1.725</span>
+              </div>
+            </div>
+            <div style="margin-top:auto;display:flex;gap:10px;align-items:center;">
+              <div class="btn-ghost" style="width:88px;">上一步</div>
+              <div class="btn-primary" style="flex:1;">下一步</div>
+            </div>
+            <div style="text-align:center;font-size:11px;color:var(--ink-3);padding-bottom:6px;">跳过，按久坐人群计算 ›</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>Onboarding ② 训练水平</h4>
+          三项全空走普通 BMR 分支；力量指数 =(蹲+推+拉)/体重，本例 360/75=4.8 → 修正 ×1.04。
+          <div class="apis"><span class="api">PUT /users/me/training</span></div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">每日饮食助手<div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><span>3/3</span></div>
+            <div class="h-title">选择你的目标 🎯</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+              <div class="cchip" style="text-align:center;padding:11px 0;border-radius:12px;">增肌<br><span style="font-size:10px;color:var(--ink-3);">+400 kcal</span></div>
+              <div class="cchip on" style="text-align:center;padding:11px 0;border-radius:12px;">减脂<br><span style="font-size:10px;">−400 kcal</span></div>
+              <div class="cchip" style="text-align:center;padding:11px 0;border-radius:12px;">维持<br><span style="font-size:10px;color:var(--ink-3);">TDEE 持平</span></div>
+              <div class="cchip" style="text-align:center;padding:11px 0;border-radius:12px;">自定义<br><span style="font-size:10px;color:var(--ink-3);">手动填 kcal</span></div>
+            </div>
+            <div class="card" style="background:linear-gradient(135deg,#0E9F55,#07C160);color:#fff;">
+              <div style="font-size:11px;opacity:.85;">你的每日目标热量</div>
+              <div style="font-size:30px;font-weight:800;margin:2px 0 6px;">2370 <span style="font-size:12px;font-weight:400;">kcal</span></div>
+              <div style="font-size:10px;opacity:.9;line-height:1.8;">
+                BMR 1718 → 肌肉修正 ×1.04 → 活动系数 ×1.55<br>= TDEE 2770 → 减脂 −400
+              </div>
+            </div>
+            <div class="card">
+              <div style="font-size:12px;font-weight:700;">默认 PFC 比例（减脂）<span style="font-weight:400;font-size:10px;color:var(--ink-3);margin-left:6px;">可修改</span></div>
+              <div class="cand-pfc" style="margin-top:10px;">
+                <div class="bar" style="width:35%;background:var(--carbo);"></div>
+                <div class="bar" style="width:37%;background:var(--protein);"></div>
+                <div class="bar" style="width:28%;background:var(--fat);"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--ink-2);margin-top:7px;">
+                <span>碳水 35% · 207g</span><span>蛋白 37% · 219g</span><span>脂肪 28% · 74g</span>
+              </div>
+            </div>
+            <div style="margin-top:auto;" class="btn-primary">✨ 生成我的今日食谱</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>Onboarding ③ 目标设置 + 计算结果</h4>
+          目标映射默认 PFC：增肌 45/32/23 · 减脂 35/37/28 · 维持 45/28/27；自定义不覆盖手填值。点击完成即触发生成当日食谱。
+          <div class="apis"><span class="api">PUT /users/me/goal</span><span class="api">POST /recipes/generate</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= ② 每日主流程 ================= -->
+  <section class="section">
+    <div class="section-title"><span class="no">流程二</span><h2>每日主流程 · 首页 / 替换 / 记录</h2></div>
+    <div class="section-desc">首页 = 今日推荐 + 摄入汇总；点「换一个」弹出 Top 3 替换候选；「一键入库」批量写入今日记录。</div>
+    <div class="phone-row">
+
+      <!-- 首页 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">今日<div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 4px;">
+              <div><b style="font-size:18px;">早上好，小王</b><div style="font-size:11px;color:var(--ink-3);margin-top:2px;">10月19日 周一 · 减脂中</div></div>
+              <div style="font-size:11px;color:var(--ink-3);">📅</div>
+            </div>
+
+            <div class="card">
+              <div class="ring-wrap">
+                <div class="ring-box">
+                  <svg width="128" height="128" viewBox="0 0 128 128">
+                    <circle cx="64" cy="64" r="54" fill="none" stroke="#EDEFF3" stroke-width="11"/>
+                    <circle cx="64" cy="64" r="54" fill="none" stroke="#07C160" stroke-width="11" stroke-linecap="round" stroke-dasharray="199.2 339.3"/>
+                  </svg>
+                  <div class="ring-c"><b>59%</b><span>已摄入</span></div>
+                </div>
+                <div class="kcal-nums">
+                  <div class="row"><span>已摄入</span><b>1392 kcal</b></div>
+                  <div class="row"><span>目标</span><b>2370 kcal</b></div>
+                  <div class="row"><span>剩余</span><b style="color:var(--primary-dark);">978 kcal</b></div>
+                  <div class="pfc-row"><span class="nm">碳水</span><div class="track"><div class="fill" style="width:57%;background:var(--carbo);"></div></div><span class="val">118 / 207g</span></div>
+                  <div class="pfc-row"><span class="nm">蛋白</span><div class="track"><div class="fill" style="width:58%;background:var(--protein);"></div></div><span class="val">128 / 219g</span></div>
+                  <div class="pfc-row"><span class="nm">脂肪</span><div class="track"><div class="fill" style="width:57%;background:var(--fat);"></div></div><span class="val">42 / 74g</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="yday">🎉 昨日达成率 <b style="color:#D48806;">92%</b>，继续保持！</div>
+
+            <div class="meal">
+              <div class="meal-head"><span class="meal-tag t-breakfast">早餐</span><span class="meal-kcal"><b>588</b> / 593 kcal</span><span class="meal-state st-done">✓ 已吃</span></div>
+              <div class="meal-items">全麦面包 2片 · 水煮蛋 2个 · 牛奶 250ml · 香蕉 1根</div>
+            </div>
+
+            <div class="meal">
+              <div class="meal-head"><span class="meal-tag t-lunch">午餐</span><span class="meal-kcal"><b>804</b> / 830 kcal</span><span class="meal-state st-done">✓ 已吃</span></div>
+              <div class="meal-items">糙米饭 200g · 香煎鸡胸肉 120g · 白灼西兰花 150g</div>
+            </div>
+
+            <div class="meal">
+              <div class="meal-head"><span class="meal-tag t-dinner">晚餐</span><span class="meal-kcal"><b>711</b> kcal</span><span class="meal-state st-todo">待确认</span></div>
+              <div class="meal-items">杂粮饭 150g · 清蒸鲈鱼 180g · 蒜蓉菠菜 200g</div>
+              <div class="meal-acts"><div class="btn-ghost">换一个</div><div class="btn-eat">✓ 已吃</div></div>
+            </div>
+
+            <div class="cta-sticky">⚡ 一键今日食谱入库</div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>首页</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>食物库</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h16M4 19h10"/></svg>记录</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5"/></svg>我的</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>今日首页</h4>
+          环形进度（实际 vs 目标）+ PFC 三色条 + 昨日完成率；餐次卡片展示计划/实际热量，支持单餐「已吃」与「换一个」。若未生成食谱，进入时后端自动生成。
+          <div class="apis"><span class="api">GET /recipes/today</span><span class="api">GET /records/today/summary</span><span class="api">POST /records/today/bulk</span></div>
+        </div>
+      </div>
+
+      <!-- 替换弹层 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">今日<div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div class="card" style="opacity:.6;"><div class="ring-wrap"><div class="ring-box"><svg width="128" height="128" viewBox="0 0 128 128"><circle cx="64" cy="64" r="54" fill="none" stroke="#EDEFF3" stroke-width="11"/><circle cx="64" cy="64" r="54" fill="none" stroke="#07C160" stroke-width="11" stroke-linecap="round" stroke-dasharray="199.2 339.3"/></svg><div class="ring-c"><b>59%</b><span>已摄入</span></div></div><div class="kcal-nums"><div class="row"><span>已摄入</span><b>1392 kcal</b></div><div class="row"><span>剩余</span><b>978 kcal</b></div></div></div></div>
+            <div class="meal" style="opacity:.6;"><div class="meal-head"><span class="meal-tag t-dinner">晚餐</span><span class="meal-kcal"><b>711</b> kcal</span></div></div>
+            <div class="dim"></div>
+            <div class="sheet">
+              <div class="grab"></div>
+              <h3>替换食材</h3>
+              <div class="origin">
+                <span style="font-size:16px;">🍗</span>
+                <div><b>鸡胸肉</b><div style="font-size:10px;color:var(--ink-3);">120g · 198 kcal</div></div>
+                <span class="pfc-mini">蛋 24.8 · 碳 0 · 脂 2.6</span>
+              </div>
+              <div style="font-size:11px;color:var(--ink-3);margin-top:12px;">同类食材 · 热量 ±20% · 按 PFC 相似度排序</div>
+
+              <div class="cand best">
+                <div class="cand-top"><span>🍖</span><b>去皮鸡腿肉</b><span class="match">匹配 95%</span><span class="delta up">+12 kcal</span></div>
+                <div class="cand-pfc"><div class="bar" style="width:12px;background:var(--carbo);"></div><div class="bar" style="width:96px;background:var(--protein);"></div><div class="bar" style="width:34px;background:var(--fat);"></div><span class="txt">130g · 蛋 26.0 脂 5.2</span></div>
+              </div>
+              <div class="cand">
+                <div class="cand-top"><span>🐟</span><b>巴沙鱼</b><span class="match m2">匹配 91%</span><span class="delta down">−8 kcal</span></div>
+                <div class="cand-pfc"><div class="bar" style="width:10px;background:var(--carbo);"></div><div class="bar" style="width:82px;background:var(--protein);"></div><div class="bar" style="width:18px;background:var(--fat);"></div><span class="txt">150g · 蛋 22.5 脂 2.1</span></div>
+              </div>
+              <div class="cand">
+                <div class="cand-top"><span>🥩</span><b>牛里脊</b><span class="match m3">匹配 87%</span><span class="delta up">+25 kcal</span></div>
+                <div class="cand-pfc"><div class="bar" style="width:10px;background:var(--carbo);"></div><div class="bar" style="width:88px;background:var(--protein);"></div><div class="bar" style="width:30px;background:var(--fat);"></div><span class="txt">110g · 蛋 24.2 脂 4.4</span></div>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
+                <span style="font-size:11px;color:var(--ink-3);">👎 不喜欢鸡胸肉（3 次后不再推荐）</span>
+                <span style="font-size:10px;color:var(--ink-3);">替换后自动更新本餐热量</span>
+              </div>
+            </div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>食材替换弹层（Top 3 候选）</h4>
+          过滤：同类别 + 热量 80–120% + 排除不喜欢；打分 = 0.6×PFC余弦相似度 + 0.4×热量接近度 − 不喜欢惩罚；展示热量差值与 PFC 对比条。
+          <div class="apis"><span class="api">POST /recipes/items/{itemId}/substitute</span><span class="api">POST /recipes/items/{itemId}/dislike</span></div>
+        </div>
+      </div>
+
+      <!-- 记录汇总 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">饮食记录<div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div class="card">
+              <div class="ring-wrap">
+                <div class="ring-box">
+                  <svg width="128" height="128" viewBox="0 0 128 128">
+                    <circle cx="64" cy="64" r="54" fill="none" stroke="#EDEFF3" stroke-width="11"/>
+                    <circle cx="64" cy="64" r="54" fill="none" stroke="#07C160" stroke-width="11" stroke-linecap="round" stroke-dasharray="199.2 339.3"/>
+                  </svg>
+                  <div class="ring-c"><b>1392</b><span>/ 2370 kcal</span></div>
+                </div>
+                <div class="kcal-nums">
+                  <div class="pfc-row"><span class="nm">碳水</span><div class="track"><div class="fill" style="width:57%;background:var(--carbo);"></div></div><span class="val">118 / 207g</span></div>
+                  <div class="pfc-row"><span class="nm">蛋白</span><div class="track"><div class="fill" style="width:58%;background:var(--protein);"></div></div><span class="val">128 / 219g</span></div>
+                  <div class="pfc-row"><span class="nm">脂肪</span><div class="track"><div class="fill" style="width:57%;background:var(--fat);"></div></div><span class="val">42 / 74g</span></div>
+                  <div style="font-size:10px;color:var(--ink-3);margin-top:8px;">距目标还差 978 kcal，晚餐+加餐按计划即可达标 ✅</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="meal">
+              <div class="meal-head"><span class="meal-tag t-breakfast">早餐</span><span class="meal-kcal"><b>588</b> kcal</span></div>
+              <div class="rec-item"><span class="rn">全麦面包</span><span class="rg">60g</span><span class="rk">148 kcal</span><span class="ops"><i>改</i><i>删</i></span></div>
+              <div class="rec-item"><span class="rn">水煮蛋</span><span class="rg">2个</span><span class="rk">140 kcal</span><span class="ops"><i>改</i><i>删</i></span></div>
+              <div class="rec-item"><span class="rn">纯牛奶</span><span class="rg">250ml</span><span class="rk">165 kcal</span><span class="ops"><i>改</i><i>删</i></span></div>
+              <div class="rec-item"><span class="rn">香蕉</span><span class="rg">1根</span><span class="rk">93 kcal</span><span class="ops"><i>改</i><i>删</i></span></div>
+            </div>
+
+            <div class="meal">
+              <div class="meal-head"><span class="meal-tag t-lunch">午餐</span><span class="meal-kcal"><b>804</b> kcal</span></div>
+              <div class="rec-item"><span class="rn">糙米饭</span><span class="rg">200g</span><span class="rk">232 kcal</span><span class="ops"><i>改</i><i>删</i></span></div>
+              <div class="rec-item"><span class="rn">香煎鸡胸肉</span><span class="rg">120g</span><span class="rk">198 kcal</span><span class="ops"><i>改</i><i>删</i></span></div>
+              <div class="rec-item"><span class="rn">白灼西兰花</span><span class="rg">150g</span><span class="rk">51 kcal</span><span class="ops"><i>改</i><i>删</i></span></div>
+              <div class="rec-item"><span class="rn">橄榄油（烹饪）</span><span class="rg">10g</span><span class="rk">90 kcal</span><span class="ops"><i>改</i><i>删</i></span></div>
+            </div>
+
+            <div class="btn-ghost" style="padding:11px 0;">＋ 手动添加食物</div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>首页</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>食物库</div>
+            <div class="tab on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h16M4 19h10"/></svg>记录</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5"/></svg>我的</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>每日汇总视图</h4>
+          顶部环形进度 + PFC 三色条（实际 vs 目标克数）；按餐次分组，每项支持修改克数 / 删除；手动添加走食物搜索。
+          <div class="apis"><span class="api">GET /records/today/summary</span><span class="api">PUT /records/{id}</span><span class="api">DELETE /records/{id}</span><span class="api">POST /records</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= ③ 食物库 ================= -->
+  <section class="section">
+    <div class="section-title"><span class="no">流程三</span><h2>食物库 · 搜索与自定义</h2></div>
+    <div class="section-desc">模糊搜索 + 七大分类筛选；结果按「常用 &gt; 收藏 &gt; 标准库」排序；自定义食物为 v1.1 功能。</div>
+    <div class="phone-row">
+
+      <!-- 食物库 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">食物库<div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div class="search">🔍 鸡胸</div>
+            <div class="cat-row">
+              <span class="cat">全部</span><span class="cat">谷物</span><span class="cat on">蛋白类</span>
+              <span class="cat">蔬菜</span><span class="cat">水果</span><span class="cat">乳制品</span><span class="cat">坚果</span>
+            </div>
+            <div style="font-size:10px;color:var(--ink-3);padding:0 2px;">共 24 个结果 · 排序：常用 &gt; 收藏 &gt; 标准库</div>
+
+            <div class="food">
+              <div class="ic" style="background:#FFF1E8;">🍗</div>
+              <div class="fi"><div class="fn">鸡胸肉（生）<span class="tag fav">★ 常用</span></div><div class="fm">133 kcal/100g · 蛋 24.6 · 脂 1.9 · 碳 0</div></div>
+              <div class="add">＋</div>
+            </div>
+            <div class="food">
+              <div class="ic" style="background:#FFF1E8;">🍖</div>
+              <div class="fi"><div class="fn">去皮鸡腿肉</div><div class="fm">150 kcal/100g · 蛋 20.2 · 脂 7.2 · 碳 0</div></div>
+              <div class="add">＋</div>
+            </div>
+            <div class="food">
+              <div class="ic" style="background:#FDF0EF;">🥩</div>
+              <div class="fi"><div class="fn">鸡胸肉肠（低脂）<span class="tag">自定义</span></div><div class="fm">118 kcal/100g · 蛋 21.5 · 脂 2.2 · 碳 1.8</div></div>
+              <div class="add">＋</div>
+            </div>
+            <div class="food">
+              <div class="ic" style="background:#FFF1E8;">🍳</div>
+              <div class="fi"><div class="fn">鸡胸肉末</div><div class="fm">128 kcal/100g · 蛋 23.1 · 脂 2.6 · 碳 0.4</div></div>
+              <div class="add">＋</div>
+            </div>
+            <div class="food">
+              <div class="ic" style="background:#FFF1E8;">🥓</div>
+              <div class="fi"><div class="fn">鸡胸蛋白棒<span class="tag">自定义</span></div><div class="fm">310 kcal/100g · 蛋 38.0 · 脂 8.5 · 碳 22.0</div></div>
+              <div class="add">＋</div>
+            </div>
+
+            <div style="margin-top:auto;" class="btn-ghost">✎ 新建自定义食物<span class="badge-ver">v1.1</span></div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>首页</div>
+            <div class="tab on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>食物库</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h16M4 19h10"/></svg>记录</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5"/></svg>我的</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>食物库搜索</h4>
+          数据源自《中国食物成分表》第 6 版；支持模糊搜索 + 分类筛选；点「＋」填克数直接入记录。登录失败也可浏览公共食物库。
+          <div class="apis"><span class="api">GET /foods?keyword=&category=</span><span class="api">GET /foods/{id}</span><span class="api">GET /foods/favorites</span></div>
+        </div>
+      </div>
+
+      <!-- 自定义食物 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar"><span class="back">‹</span>新建自定义食物<span class="badge-ver">v1.1</span><div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div style="display:flex;gap:12px;align-items:center;">
+              <div style="width:74px;height:74px;border:1.5px dashed #C9CFD9;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink-3);font-size:10px;background:#fff;flex:none;"><span style="font-size:20px;">📷</span>上传图片</div>
+              <div style="flex:1;">
+                <div class="flabel">名称</div>
+                <div class="field">桃李 全麦面包</div>
+              </div>
+            </div>
+            <div>
+              <div class="flabel">类别（从标准类别中选择）</div>
+              <div class="chip-row"><span class="cchip on">谷物</span><span class="cchip">蛋白类</span><span class="cchip">蔬菜</span><span class="cchip">水果</span><span class="cchip">乳制品</span><span class="cchip">坚果</span><span class="cchip">调料</span></div>
+            </div>
+            <div class="card" style="box-shadow:none;border:1px solid var(--line);">
+              <div style="font-size:12px;font-weight:700;margin-bottom:8px;">每 100g 营养成分</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+                <div><div class="flabel">能量</div><div class="field">246<span class="unit">kcal</span></div></div>
+                <div><div class="flabel">蛋白质</div><div class="field">8.3<span class="unit">g</span></div></div>
+                <div><div class="flabel">脂肪</div><div class="field">3.1<span class="unit">g</span></div></div>
+                <div><div class="flabel">碳水</div><div class="field">45.2<span class="unit">g</span></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="flabel">常用克数（记录时默认填充）</div>
+              <div class="field">80<span class="unit">g · 约 2 片</span></div>
+            </div>
+            <div style="margin-top:auto;" class="btn-primary">保存并加入食物库</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>自定义食物（v1.1）</h4>
+          品牌+商品名命名；图片走 OSS/COS；保存后进入个人食物库并参与搜索排序与食谱推荐。
+          <div class="apis"><span class="api">POST /foods/custom</span><span class="api">PUT /foods/custom/{id}</span><span class="api">DELETE /foods/custom/{id}</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= ④ 统计与我的 ================= -->
+  <section class="section">
+    <div class="section-title"><span class="no">流程四</span><h2>统计反馈与个人中心</h2></div>
+    <div class="section-desc">周/月趋势（echarts-for-weixin）+ 达成率 + AI 建议（v1.2）；个人中心承载目标、PFC 与公式说明。</div>
+    <div class="phone-row">
+
+      <!-- 统计 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">统计<span class="badge-ver">v1.1</span><div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div class="seg-tab"><div class="on">近 7 天</div><div>近 30 天</div></div>
+
+            <div class="card achv">
+              <div class="cell"><b style="color:var(--primary-dark);">71%</b><span>目标达成率</span></div>
+              <div class="cell"><b>5 / 7</b><span>达标天数</span></div>
+              <div class="cell"><b>2356</b><span>日均摄入 kcal</span></div>
+            </div>
+
+            <div class="card">
+              <div class="chart-t">每日摄入 vs 目标 <span class="hint">虚线 = 目标 2370</span></div>
+              <svg width="100%" height="150" viewBox="0 0 340 150">
+                <line x1="20" y1="20" x2="20" y2="120" stroke="#EDEFF3"/>
+                <line x1="20" y1="120" x2="330" y2="120" stroke="#EDEFF3"/>
+                <line x1="20" y1="70" x2="330" y2="70" stroke="#EDEFF3" stroke-dasharray="3 3"/>
+                <line x1="20" y1="70.4" x2="330" y2="70.4" stroke="#FA8C16" stroke-width="1.5" stroke-dasharray="6 4"/>
+                <text x="322" y="66" font-size="9" fill="#FA8C16" text-anchor="end">2370</text>
+                <polyline points="32,75 82,64 132,70 182,55 232,77 282,67 318,72" fill="none" stroke="#07C160" stroke-width="2.5" stroke-linejoin="round"/>
+                <g fill="#07C160"><circle cx="32" cy="75" r="3.5"/><circle cx="82" cy="64" r="3.5"/><circle cx="132" cy="70" r="3.5"/><circle cx="182" cy="55" r="3.5"/><circle cx="232" cy="77" r="3.5"/><circle cx="282" cy="67" r="3.5"/><circle cx="318" cy="72" r="4.5" fill="#fff" stroke="#07C160" stroke-width="2.5"/></g>
+                <text x="182" y="47" font-size="9" fill="#4E5561" text-anchor="middle">2560</text>
+                <g font-size="9" fill="#8A919E" text-anchor="middle"><text x="32" y="136">一</text><text x="82" y="136">二</text><text x="132" y="136">三</text><text x="182" y="136">四</text><text x="232" y="136">五</text><text x="282" y="136">六</text><text x="318" y="136">日</text></g>
+              </svg>
+            </div>
+
+            <div class="card">
+              <div class="chart-t">每日 PFC 结构 <span class="hint">柱状堆叠（g）</span></div>
+              <svg width="100%" height="120" viewBox="0 0 340 120">
+                <g>
+                  <rect x="22" y="18" width="22" height="44" fill="#5B8FF9" rx="2"/><rect x="22" y="62" width="22" height="30" fill="#FF7A45" rx="2"/><rect x="22" y="92" width="22" height="12" fill="#F5C518" rx="2"/>
+                  <rect x="72" y="12" width="22" height="48" fill="#5B8FF9" rx="2"/><rect x="72" y="60" width="22" height="33" fill="#FF7A45" rx="2"/><rect x="72" y="93" width="22" height="11" fill="#F5C518" rx="2"/>
+                  <rect x="122" y="16" width="22" height="45" fill="#5B8FF9" rx="2"/><rect x="122" y="61" width="22" height="31" fill="#FF7A45" rx="2"/><rect x="122" y="92" width="22" height="12" fill="#F5C518" rx="2"/>
+                  <rect x="172" y="8" width="22" height="52" fill="#5B8FF9" rx="2"/><rect x="172" y="60" width="22" height="34" fill="#FF7A45" rx="2"/><rect x="172" y="94" width="22" height="13" fill="#F5C518" rx="2"/>
+                  <rect x="222" y="20" width="22" height="42" fill="#5B8FF9" rx="2"/><rect x="222" y="62" width="22" height="30" fill="#FF7A45" rx="2"/><rect x="222" y="92" width="22" height="12" fill="#F5C518" rx="2"/>
+                  <rect x="272" y="14" width="22" height="47" fill="#5B8FF9" rx="2"/><rect x="272" y="61" width="22" height="32" fill="#FF7A45" rx="2"/><rect x="272" y="93" width="22" height="11" fill="#F5C518" rx="2"/>
+                  <rect x="312" y="40" width="22" height="26" fill="#5B8FF9" rx="2" opacity=".45"/><rect x="312" y="66" width="22" height="20" fill="#FF7A45" rx="2" opacity=".45"/><rect x="312" y="86" width="22" height="8" fill="#F5C518" rx="2" opacity=".45"/>
+                </g>
+                <g font-size="9" fill="#8A919E" text-anchor="middle"><text x="33" y="114">一</text><text x="83" y="114">二</text><text x="133" y="114">三</text><text x="183" y="114">四</text><text x="233" y="114">五</text><text x="283" y="114">六</text><text x="323" y="114">日</text></g>
+              </svg>
+            </div>
+
+            <div class="card" style="background:linear-gradient(135deg,#F6F0FF,#EFE6FF);border:1px solid #E4D6FF;">
+              <div style="font-size:12px;font-weight:700;">🤖 AI 饮食建议<span class="badge-ver badge-v12">v1.2</span></div>
+              <div style="font-size:11px;color:var(--ink-2);line-height:1.8;margin-top:6px;">本周蛋白摄入稳定，但周四总热量超标 8%。建议晚餐主食减半碗，加餐优先选无糖酸奶；蔬菜日均不足 300g，可增加深色叶菜。</div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>首页</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>食物库</div>
+            <div class="tab on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>统计</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5"/></svg>我的</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>统计页（v1.1）</h4>
+          周/月切换：每日实际热量折线（目标虚线）+ PFC 堆叠柱状 + 达成率卡片；底部预埋 AI 建议位。
+          <div class="apis"><span class="api">GET /stats/weekly</span><span class="api">GET /stats/monthly</span><span class="api">GET /stats/achievement?range=7</span><span class="api">GET /ai/advice?range=7</span></div>
+        </div>
+      </div>
+
+      <!-- 我的 -->
+      <div class="phone-unit">
+        <div class="phone"><div class="screen">
+          <div class="statusbar">9:41<div class="island"></div><div class="icons">●●● 5G ▮</div></div>
+          <div class="navbar">我的<div class="capsule">•••<span class="sep"></span>⊙</div></div>
+          <div class="content">
+            <div class="card profile">
+              <div class="avatar">王</div>
+              <div><div class="pn">健身小王</div><div class="pm">男 · 28岁 · 178cm · 75kg → 目标 70kg</div></div>
+              <span style="margin-left:auto;color:#C4C9D1;">›</span>
+            </div>
+
+            <div class="card">
+              <div class="grid4">
+                <div class="cell"><b>1718</b><span>BMR kcal</span></div>
+                <div class="cell"><b>×1.04</b><span>肌肉修正</span></div>
+                <div class="cell"><b>2770</b><span>TDEE kcal</span></div>
+                <div class="cell"><b style="color:var(--primary-dark);">2370</b><span>目标 kcal</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;">当前目标：减脂
+                <span style="font-size:10px;color:var(--ink-3);font-weight:400;">TDEE −400</span>
+              </div>
+              <div class="cand-pfc" style="margin-top:10px;">
+                <div class="bar" style="width:35%;background:var(--carbo);"></div>
+                <div class="bar" style="width:37%;background:var(--protein);"></div>
+                <div class="bar" style="width:28%;background:var(--fat);"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--ink-2);margin-top:7px;">
+                <span>碳水 35%</span><span>蛋白 37%</span><span>脂肪 28%</span>
+              </div>
+            </div>
+
+            <div class="menu">
+              <div class="mi"><span class="icn">👤</span>基础信息<span class="val">体重变化自动重算</span><span class="arr">›</span></div>
+              <div class="mi"><span class="icn">🏋️</span>训练数据<span class="val">蹲120 推90 拉150</span><span class="arr">›</span></div>
+              <div class="mi"><span class="icn">🎯</span>目标与 PFC 比例<span class="arr">›</span></div>
+              <div class="mi"><span class="icn">👎</span>不喜欢的食材<span class="val">2 项</span><span class="arr">›</span></div>
+              <div class="mi"><span class="icn">⭐</span>收藏 / 常用食物<span class="badge-ver">v1.1</span><span class="arr">›</span></div>
+            </div>
+
+            <div class="menu">
+              <div class="mi"><span class="icn">📐</span>公式说明（BMR/TDEE）<span class="arr">›</span></div>
+              <div class="mi"><span class="icn">🔒</span>隐私与数据<span class="arr">›</span></div>
+              <div class="mi"><span class="icn">ℹ️</span>关于每日饮食助手<span class="val">v1.0.0</span><span class="arr">›</span></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>首页</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>食物库</div>
+            <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>统计</div>
+            <div class="tab on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5"/></svg>我的</div>
+          </div>
+        </div></div>
+        <div class="note">
+          <h4>个人中心</h4>
+          汇总 BMR / 修正系数 / TDEE / 目标热量与当前 PFC；入口覆盖基础信息、训练数据、目标、不喜欢食材与「公式说明」（需求要求计算规则可追溯）。
+          <div class="apis"><span class="api">GET /users/me</span><span class="api">PUT /users/me</span><span class="api">PUT /users/me/goal</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ================= 页面-API 映射表 ================= -->
+<footer class="foot">
+  <div class="section-title" style="margin-top:8px;"><span class="no">附</span><h2>页面 ↔ 接口映射（v1.0 主线）</h2></div>
+  <div style="height:14px;"></div>
+  <table>
+    <tr><th>页面</th><th>核心接口</th><th>关键交互</th></tr>
+    <tr><td>Onboarding ①②③</td><td>PUT /users/me · /training · /goal</td><td>三步录入 → 实时重算 BMR/TDEE → 展示目标与默认 PFC</td></tr>
+    <tr><td>今日首页</td><td>GET /recipes/today · GET /records/today/summary · POST /records/today/bulk</td><td>环形进度、单餐已吃、一键入库、进入替换弹层</td></tr>
+    <tr><td>替换弹层</td><td>POST /recipes/items/{id}/substitute · /dislike</td><td>Top 3 候选（相似度+热量差），标记不喜欢 3 次剔除</td></tr>
+    <tr><td>饮食记录</td><td>POST /records · PUT /records/{id} · DELETE /records/{id}</td><td>按餐分组、改克数、删除、手动添加</td></tr>
+    <tr><td>食物库</td><td>GET /foods · POST /foods/custom（v1.1）</td><td>模糊搜索、分类筛选、常用>收藏>标准库排序</td></tr>
+    <tr><td>统计（v1.1）</td><td>GET /stats/weekly · /monthly · /achievement</td><td>周/月折线 + PFC 柱状 + 达成率；AI 建议（v1.2）</td></tr>
+    <tr><td>个人中心</td><td>GET /users/me</td><td>目标与 PFC 管理、不喜欢食材、公式说明</td></tr>
+  </table>
+  <div style="text-align:center;color:var(--ink-3);font-size:11px;margin-top:28px;line-height:1.8;">
+    每日饮食助手 · 前端 UI 设计稿 v1.0 · 依据《开发设计文档.md》《需求文档-详细版.md》生成 · 2026-10-19
+  </div>
+</footer>
+
+</body>
+</html>

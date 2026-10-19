@@ -1,19 +1,32 @@
 import { get, put } from "./http";
 
+/** 当前用户完整信息（对齐后端 User 实体） */
 export interface UserInfo {
   id: number;
   openid: string;
   nickname: string;
   avatarUrl?: string;
-  gender: number; // 1 男 2 女
-  birthDate: string;
+  /** 性别：0=女 1=男 */
+  gender: number;
+  /** 出生日期 yyyy-MM-dd */
+  birthday: string;
+  /** 身高 cm */
   height: number;
-  weight: number;
-  trainingLevel: number; // 1~4
-  squat?: number;
-  bench?: number;
-  deadlift?: number;
-  goalType: number; // 1 增肌 2 减脂 3 维持 4 自定义
+  /** 当前体重 kg */
+  currentWeight: number;
+  /** 目标体重 kg（可选） */
+  targetWeight?: number;
+  /** 深蹲 1RM kg */
+  squat1rm?: number;
+  /** 卧推 1RM kg */
+  bench1rm?: number;
+  /** 硬拉 1RM kg */
+  deadlift1rm?: number;
+  /** 训练等级：0=未填 1=久坐 2=轻度活动 3=规律力量训练 4=高强度 */
+  trainingLevel: number;
+  /** 目标类型：1=增肌 2=减脂 3=维持 4=自定义 */
+  goalType: number;
+  /** 自定义每日目标热量 kcal（仅 goalType=4） */
   customTdee?: number;
   pfcCarboPct: number;
   pfcProteinPct: number;
@@ -23,30 +36,39 @@ export interface UserInfo {
   muscleFactor?: number;
 }
 
+/** 当日目标（对齐后端 TargetResponse） */
 export interface UserTarget {
+  bmr: number;
+  tdee: number;
   targetKcal: number;
-  targetCarbo: number;
-  targetProtein: number;
-  targetFat: number;
+  pfcCarboPct: number;
+  pfcProteinPct: number;
+  pfcFatPct: number;
+  targetCarboG: number;
+  targetProteinG: number;
+  targetFatG: number;
 }
 
+/** 更新基础信息（对齐后端 UserUpdateRequest） */
 export interface UpdateBaseInfoRequest {
-  nickname?: string;
   gender?: number;
-  birthDate?: string;
+  birthday?: string;
   height?: number;
-  weight?: number;
+  currentWeight?: number;
+  targetWeight?: number;
 }
 
+/** 更新三大项 + 训练等级（对齐后端 TrainingUpdateRequest） */
 export interface UpdateTrainingRequest {
-  squat?: number;
-  bench?: number;
-  deadlift?: number;
+  squat1rm?: number;
+  bench1rm?: number;
+  deadlift1rm?: number;
   trainingLevel?: number;
 }
 
+/** 更新目标 + PFC 比例（对齐后端 GoalUpdateRequest） */
 export interface UpdateGoalRequest {
-  goalType?: number;
+  goalType: number;
   customTdee?: number;
   pfcCarboPct?: number;
   pfcProteinPct?: number;
@@ -79,4 +101,3 @@ export function getTarget(): Promise<UserTarget> {
 }
 
 export const userApi = { getMe, updateMe, updateTraining, updateGoal, getTarget };
-
