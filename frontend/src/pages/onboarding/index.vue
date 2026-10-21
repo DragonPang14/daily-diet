@@ -1,15 +1,5 @@
 <template>
   <view class="onboarding">
-    <!-- 登录中 / 登录失败 -->
-    <view v-if="phase === 'loading'" class="center-box">
-      <text class="loading-txt">登录中…</text>
-    </view>
-    <view v-else-if="phase === 'login-fail'" class="center-box">
-      <text class="loading-txt">登录失败，请检查网络后重试</text>
-      <view class="btn-primary retry" @click="doWxLogin">重试</view>
-    </view>
-
-    <template v-else>
       <!-- 步骤进度（编辑模式不展示） -->
       <view v-if="!editMode" class="steps">
         <view class="step-bar" :class="{ done: step >= 1 }"></view>
@@ -156,7 +146,6 @@
         </template>
       </view>
       <view v-if="!editMode && step === 2" class="skip" @click="skipTraining">跳过，按普通人群计算 ›</view>
-    </template>
   </view>
 </template>
 
@@ -164,7 +153,6 @@
 import { reactive, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import dayjs from "dayjs";
-import { authApi } from "@/api/auth";
 import { userApi, type UserTarget } from "@/api/user";
 import { recipeApi } from "@/api/recipe";
 import { useUserStore } from "@/store/user";
@@ -172,8 +160,6 @@ import { today as todayStr } from "@/utils/format";
 
 const userStore = useUserStore();
 
-const TOKEN_KEY = "token";
-const phase = ref<"loading" | "login-fail" | "steps">("loading");
 const editMode = ref(false);
 const step = ref(1);
 const target = ref<UserTarget | null>(null);
@@ -209,6 +195,7 @@ const form = reactive({
 });
 
 onLoad(async (q) => {
+  // App.vue 已完成静默登录并校验 isNewUser，此处一定是已登录新用户
   // 编辑模式：从「我的」进入，跳过登录流程
   if (q?.edit === "1") {
     editMode.value = true;
@@ -219,34 +206,8 @@ onLoad(async (q) => {
       // 编辑目标时直接展示当前计算结果
       await refreshTarget();
     }
-    phase.value = "steps";
-    return;
   }
-  // 已登录 → 直接进首页
-  const token = uni.getStorageSync(TOKEN_KEY) as string;
-  if (token) {
-    goHome();
-    return;
-  }
-  await doWxLogin();
 });
-
-async function doWxLogin(): Promise<void> {
-  phase.value = "loading";
-  try {
-    const res = await uni.login({ provider: "weixin" });
-    if (!res.code) throw new Error("未获取到 code");
-    const r = await authApi.wxLogin(res.code);
-    userStore.login(r);
-    if (r.isNewUser) {
-      phase.value = "steps";
-    } else {
-      goHome();
-    }
-  } catch (e) {
-    phase.value = "login-fail";
-  }
-}
 
 function goHome(): void {
   uni.switchTab({ url: "/pages/home/index" });

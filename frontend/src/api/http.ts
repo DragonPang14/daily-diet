@@ -2,8 +2,9 @@
  * HTTP 客户端封装：基于 uni.request，对接后端 /api/v1 接口
  * - JWT 自动注入（从 storage 读取）
  * - 统一解包 ResponseResult { code, msg, data }，code=0 返回 data
- * - 401 自动清 token + 跳转 onboarding
+ * - 401 自动清 token（业务页面按需引导登录，不在此强制跳转）
  */
+import { useUserStore } from "@/store/user";
 
 export interface ResponseResult<T> {
   code: number;
@@ -12,7 +13,6 @@ export interface ResponseResult<T> {
 }
 
 const TOKEN_KEY = "token";
-const ONBOARDING_PAGE = "/pages/onboarding/index";
 
 function getBase(): string {
   return import.meta.env.VITE_API_BASE || "/api";
@@ -35,8 +35,13 @@ export function request<T>(opts: UniApp.RequestOptions): Promise<T> {
       header: buildHeader(opts.header as Record<string, string>),
       success: (res) => {
         if (res.statusCode === 401) {
-          uni.removeStorageSync(TOKEN_KEY);
-          uni.reLaunch({ url: ONBOARDING_PAGE });
+          // token 失效：清除登录态，交由业务页面按需引导登录
+          try {
+            const store = useUserStore();
+            store.logout();
+          } catch {
+            uni.removeStorageSync(TOKEN_KEY);
+          }
           reject(new Error("未登录"));
           return;
         }

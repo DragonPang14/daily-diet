@@ -9,15 +9,15 @@
   },
   "pages": [
     {
-      "path": "pages/onboarding/index",
-      "style": {
-        "navigationStyle": "custom"
-      }
-    },
-    {
       "path": "pages/home/index",
       "style": {
         "navigationBarTitleText": "今日首页"
+      }
+    },
+    {
+      "path": "pages/onboarding/index",
+      "style": {
+        "navigationStyle": "custom"
       }
     },
     {
