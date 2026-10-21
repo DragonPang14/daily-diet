@@ -77,27 +77,27 @@ export interface UpdateGoalRequest {
 
 /** 获取当前用户完整信息 */
 export function getMe(): Promise<UserInfo> {
-  return get<UserInfo>("/v1/users/me");
+  return get<UserInfo>("/users/me");
 }
 
 /** 更新基础信息（触发 BMR/TDEE 重算） */
 export function updateMe(data: UpdateBaseInfoRequest): Promise<UserInfo> {
-  return put<UserInfo>("/v1/users/me", data as unknown as Record<string, unknown>);
+  return put<UserInfo>("/users/me", data as unknown as Record<string, unknown>);
 }
 
 /** 更新三大项 + 训练等级 */
 export function updateTraining(data: UpdateTrainingRequest): Promise<UserInfo> {
-  return put<UserInfo>("/v1/users/me/training", data as unknown as Record<string, unknown>);
+  return put<UserInfo>("/users/me/training", data as unknown as Record<string, unknown>);
 }
 
 /** 更新目标 + PFC 比例 */
 export function updateGoal(data: UpdateGoalRequest): Promise<UserInfo> {
-  return put<UserInfo>("/v1/users/me/goal", data as unknown as Record<string, unknown>);
+  return put<UserInfo>("/users/me/goal", data as unknown as Record<string, unknown>);
 }
 
 /** 仅返回当日目标热量 + PFC（轻量接口） */
 export function getTarget(): Promise<UserTarget> {
-  return get<UserTarget>("/v1/users/me/target");
+  return get<UserTarget>("/users/me/target");
 }
 
 export const userApi = { getMe, updateMe, updateTraining, updateGoal, getTarget };

@@ -30,34 +30,34 @@ export interface DailyRecipe {
 
 /** 手动触发生成当日食谱 */
 export function generate(): Promise<DailyRecipe> {
-  return post<DailyRecipe>("/v1/recipes/generate");
+  return post<DailyRecipe>("/recipes/generate");
 }
 
 /** 获取今日推荐（若未生成则后端自动生成） */
 export function getToday(): Promise<DailyRecipe> {
-  return get<DailyRecipe>("/v1/recipes/today");
+  return get<DailyRecipe>("/recipes/today");
 }
 
 /** 获取指定日期食谱 */
 export function getByDate(date: string): Promise<DailyRecipe> {
-  return get<DailyRecipe>(`/v1/recipes/${date}`);
+  return get<DailyRecipe>(`/recipes/${date}`);
 }
 
 /** 获取某个食材的 Top N 替换候选 */
 export function getSubstitutes(itemId: number): Promise<Food[]> {
-  return get<{ candidates: Food[] }>(`/v1/recipes/items/${itemId}/substitute`).then(
+  return get<{ candidates: Food[] }>(`/recipes/items/${itemId}/substitute`).then(
     (r) => r.candidates || []
   );
 }
 
 /** 执行替换：将 itemId 替换为 foodId，返回更新后的 item */
 export function doSubstitute(itemId: number, foodId: number): Promise<RecipeItem> {
-  return post<RecipeItem>(`/v1/recipes/items/${itemId}/substitute?foodId=${foodId}`);
+  return post<RecipeItem>(`/recipes/items/${itemId}/substitute?foodId=${foodId}`);
 }
 
 /** 标记某食材「不喜欢」（累计 3 次从推荐池排除） */
 export function dislike(itemId: number): Promise<void> {
-  return post<void>(`/v1/recipes/items/${itemId}/dislike`);
+  return post<void>(`/recipes/items/${itemId}/dislike`);
 }
 
 export const recipeApi = {

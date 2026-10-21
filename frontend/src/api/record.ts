@@ -43,32 +43,32 @@ export interface CreateRecordRequest {
 
 /** 一键入库（按今日食谱批量创建记录） */
 export function bulkToday(recipeId: number): Promise<void> {
-  return post<void>("/v1/records/today/bulk", { recipeId });
+  return post<void>("/records/today/bulk", { recipeId });
 }
 
 /** 单条手动添加 */
 export function create(data: CreateRecordRequest): Promise<DietRecord> {
-  return post<DietRecord>("/v1/records", data as unknown as Record<string, unknown>);
+  return post<DietRecord>("/records", data as unknown as Record<string, unknown>);
 }
 
 /** 修改记录（克数 / 食物） */
 export function update(id: number, data: Partial<CreateRecordRequest>): Promise<DietRecord> {
-  return put<DietRecord>(`/v1/records/${id}`, data as unknown as Record<string, unknown>);
+  return put<DietRecord>(`/records/${id}`, data as unknown as Record<string, unknown>);
 }
 
 /** 删除记录 */
 export function remove(id: number): Promise<void> {
-  return del<void>(`/v1/records/${id}`);
+  return del<void>(`/records/${id}`);
 }
 
 /** 今日汇总（实际 vs 目标） */
 export function todaySummary(): Promise<RecordSummary> {
-  return get<RecordSummary>("/v1/records/today/summary");
+  return get<RecordSummary>("/records/today/summary");
 }
 
 /** 某一天的明细 */
 export function getByDate(date: string): Promise<DietRecord[]> {
-  return get<DietRecord[]>(`/v1/records/${date}`);
+  return get<DietRecord[]>(`/records/${date}`);
 }
 
 export const recordApi = {

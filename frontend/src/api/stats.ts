@@ -24,7 +24,7 @@ export interface Achievement {
 
 /** 近 N 天日聚合趋势；startDate 缺省为近 7 天 */
 export function weekly(startDate?: string): Promise<DailyStats[]> {
-  return get<DailyStats[]>("/v1/stats/weekly", startDate ? { startDate } : undefined);
+  return get<DailyStats[]>("/stats/weekly", startDate ? { startDate } : undefined);
 }
 
 /** 近 30 天日聚合趋势（复用 weekly 接口，startDate 传 29 天前） */
@@ -34,7 +34,7 @@ export function monthly(): Promise<DailyStats[]> {
 
 /** 达成率 */
 export function achievement(range = 7): Promise<Achievement> {
-  return get<Achievement>("/v1/stats/achievement", { range });
+  return get<Achievement>("/stats/achievement", { range });
 }
 
 export const statsApi = { weekly, monthly, achievement };

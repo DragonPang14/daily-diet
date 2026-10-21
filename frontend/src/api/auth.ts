@@ -11,7 +11,7 @@ export interface LoginResponse {
 
 /** 微信 code 换 JWT */
 export function wxLogin(code: string): Promise<LoginResponse> {
-  return post<LoginResponse>("/v1/auth/wx-login", { code });
+  return post<LoginResponse>("/auth/wx-login", { code });
 }
 
 export const authApi = { wxLogin };
