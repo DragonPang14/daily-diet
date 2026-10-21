@@ -150,24 +150,28 @@ onShow(() => {
   loadAll();
 });
 
+/**
+ * 加载首页数据：逐项容错，未登录时食谱/汇总接口会返回 401，
+ * 但首页公共内容仍需正常展示，因此每个请求单独兜底。
+ */
 async function loadAll(): Promise<void> {
   loading.value = true;
   try {
     const [rcp, sum, ach, me] = await Promise.all([
-      recipeApi.getToday(),
-      recordApi.todaySummary(),
+      recipeApi.getToday().catch(() => null),
+      recordApi.todaySummary().catch(() => null),
       statsApi.achievement(7).catch(() => null),
       userStore.userInfo ? Promise.resolve(userStore.userInfo) : userApi.getMe().catch(() => null),
     ]);
-    dietStore.setRecipe(rcp);
-    dietStore.setSummary(sum);
+    if (rcp) dietStore.setRecipe(rcp);
+    if (sum) dietStore.setSummary(sum);
     achievement.value = ach;
     if (me && !userStore.userInfo) userStore.setUser(me);
     const ids = [
-      ...(rcp.items || []).map((it) => it.foodId),
-      ...(sum.records || []).map((r) => r.foodId),
+      ...(rcp?.items || []).map((it) => it.foodId),
+      ...(sum?.records || []).map((r) => r.foodId),
     ];
-    await dietStore.ensureFoodNames(ids);
+    if (ids.length) await dietStore.ensureFoodNames(ids);
   } finally {
     loading.value = false;
   }
