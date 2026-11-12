@@ -43,6 +43,12 @@ public class Food {
     /** 碳水化合物，单位 g / 100g */
     private BigDecimal carboG;
 
+    /** 钠，单位 mg / 100g */
+    private BigDecimal sodiumMg;
+
+    /** 钾，单位 mg / 100g */
+    private BigDecimal potassiumMg;
+
     /** 常用份量，单位 g；如"1 个鸡蛋=50g"，减少记录时的输入 */
     private BigDecimal commonWeight;
 

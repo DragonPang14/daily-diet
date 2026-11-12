@@ -88,6 +88,8 @@ CREATE TABLE foods (
     protein_g       DECIMAL(6,2) NOT NULL COMMENT 'g',
     fat_g           DECIMAL(6,2) NOT NULL,
     carbo_g         DECIMAL(6,2) NOT NULL,
+    sodium_mg       DECIMAL(7,2) NOT NULL DEFAULT 0 COMMENT '钠 mg/100g',
+    potassium_mg    DECIMAL(7,2) NOT NULL DEFAULT 0 COMMENT '钾 mg/100g',
 
     common_weight   DECIMAL(6,2)          DEFAULT NULL COMMENT '常用份量 g（如 1 个鸡蛋≈50g）',
     image_url       VARCHAR(512)          DEFAULT NULL,
