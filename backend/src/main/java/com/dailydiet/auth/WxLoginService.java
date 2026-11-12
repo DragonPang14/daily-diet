@@ -47,22 +47,26 @@ public class WxLoginService {
                 throw new RuntimeException("微信登录失败: " + node.get("errmsg").asText());
             }
             String openid = node.get("openid").asText();
-
-            User user = userMapper.findByOpenid(openid);
-            boolean isNewUser = (user == null);
-            if (isNewUser) {
-                user = new User();
-                user.setOpenid(openid);
-                user.setGoalType(GoalType.MAINTAIN.getCode());
-                userMapper.insert(user);
-            }
-
-            String token = jwtUtil.generateToken(user.getId(), openid);
-            return new LoginResponse(token, isNewUser);
+            return loginByOpenid(openid);
 
         } catch (Exception e) {
             log.error("微信登录异常", e);
             throw new RuntimeException("登录失败: " + e.getMessage());
         }
+    }
+
+    /** 按 openid 登录：用户不存在则自动创建，返回 JWT */
+    public LoginResponse loginByOpenid(String openid) {
+        User user = userMapper.findByOpenid(openid);
+        boolean isNewUser = (user == null);
+        if (isNewUser) {
+            user = new User();
+            user.setOpenid(openid);
+            user.setGoalType(GoalType.MAINTAIN.getCode());
+            userMapper.insert(user);
+        }
+
+        String token = jwtUtil.generateToken(user.getId(), openid);
+        return new LoginResponse(token, isNewUser);
     }
 }
